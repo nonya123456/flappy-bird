@@ -80,6 +80,10 @@ pub const Game = struct {
     }
 
     pub fn isGameOver(self: *Game) bool {
+        if (self.bird.position.y >= 700) {
+            return true;
+        }
+
         const player_box = self.bird.getBox();
 
         for (self.pipes.items) |*pipe| {
