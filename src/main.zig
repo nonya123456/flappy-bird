@@ -1,16 +1,16 @@
-const std = @import("std");
-const ray = @cImport({
-    @cInclude("raylib.h");
-});
+const c = @import("c.zig").c;
+const Bird = @import("bird.zig").Bird;
 
 pub fn main() !void {
-    ray.InitWindow(1152, 648, "My Window");
-    ray.SetTargetFPS(144);
-    defer ray.CloseWindow();
+    var b = Bird{ .position = .{ .x = 324, .y = 324 }, .size = 30 };
+    c.InitWindow(1152, 648, "My Window");
+    c.SetTargetFPS(144);
+    defer c.CloseWindow();
 
-    while (!ray.WindowShouldClose()) {
-        ray.BeginDrawing();
-        ray.ClearBackground(ray.RAYWHITE);
-        ray.EndDrawing();
+    while (!c.WindowShouldClose()) {
+        c.BeginDrawing();
+        c.ClearBackground(c.RAYWHITE);
+        b.draw();
+        c.EndDrawing();
     }
 }
