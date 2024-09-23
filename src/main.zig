@@ -9,7 +9,7 @@ pub fn main() !void {
     var game = try Game.init(allocator);
     defer game.deinit();
 
-    c.InitWindow(1152, 648, "My Window");
+    c.InitWindow(1152, 648, "Flappy Bird");
     c.SetTargetFPS(144);
     defer c.CloseWindow();
 
