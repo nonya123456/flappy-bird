@@ -6,7 +6,12 @@ const Game = @import("game.zig").Game;
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
 
-    var game = try Game.init(allocator);
+    var seed: u64 = undefined;
+    try std.posix.getrandom(std.mem.asBytes(&seed));
+    var prng = std.rand.DefaultPrng.init(seed);
+    const random = prng.random();
+
+    var game = try Game.init(allocator, random);
     defer game.deinit();
 
     c.InitWindow(1152, 648, "Flappy Bird");
@@ -14,7 +19,7 @@ pub fn main() !void {
     defer c.CloseWindow();
 
     while (!c.WindowShouldClose()) {
-        game.update();
+        try game.update();
         c.BeginDrawing();
         c.ClearBackground(c.RAYWHITE);
         game.draw();
