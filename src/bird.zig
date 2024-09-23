@@ -2,8 +2,8 @@ const c = @import("c.zig").c;
 
 pub const Bird = struct {
     position: c.Vector2,
-    fallSpeed: f32,
-    gravity: f32 = 5.0,
+    ySpeed: f32,
+    gravity: f32 = 3000.0,
     size: f32,
 
     pub fn draw(self: Bird) void {
@@ -11,7 +11,11 @@ pub const Bird = struct {
     }
 
     pub fn update(self: *Bird) void {
-        self.fallSpeed += c.GetFrameTime() * self.gravity;
-        self.position.y += self.fallSpeed;
+        if (c.GetKeyPressed() == c.KEY_SPACE) {
+            self.ySpeed = -1000.0;
+        }
+
+        self.ySpeed += c.GetFrameTime() * self.gravity;
+        self.position.y += c.GetFrameTime() * self.ySpeed;
     }
 };

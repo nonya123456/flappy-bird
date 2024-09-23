@@ -11,7 +11,7 @@ pub const Game = struct {
         bird.* = Bird{
             .position = .{ .x = 324, .y = 324 },
             .size = 30,
-            .fallSpeed = 0,
+            .ySpeed = 0,
         };
 
         return Game{ .bird = bird, .allocator = allocator };
