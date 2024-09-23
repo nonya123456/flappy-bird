@@ -20,6 +20,12 @@ pub fn main() !void {
 
     while (!c.WindowShouldClose()) {
         try game.update();
+
+        if (game.isGameOver()) {
+            game.deinit();
+            game = try Game.init(allocator, random);
+        }
+
         c.BeginDrawing();
         c.ClearBackground(c.RAYWHITE);
         game.draw();

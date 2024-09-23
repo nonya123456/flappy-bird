@@ -62,13 +62,25 @@ pub const Game = struct {
         }
     }
 
-    pub fn addNewPipe(self: *Game) !void {
+    fn addNewPipe(self: *Game) !void {
         var new_position: f32 = 1600.0;
         if (self.pipes.getLastOrNull()) |last_pipe| {
             new_position = last_pipe.x_position + 400.0;
         }
 
         try self.pipes.append(generatePipe(self.random, new_position));
+    }
+
+    pub fn isGameOver(self: *Game) bool {
+        const player_box = self.bird.getBox();
+
+        for (self.pipes.items) |*pipe| {
+            if (pipe.isHit(player_box)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     pub fn draw(self: Game) void {
