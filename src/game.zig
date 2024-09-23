@@ -1,5 +1,7 @@
-const Random = @import("std").Random;
-const Allocator = @import("std").mem.Allocator;
+const std = @import("std");
+const Random = std.Random;
+const Allocator = std.mem.Allocator;
+const ArrayList = std.ArrayList;
 const c = @import("c.zig").c;
 const Bird = @import("bird.zig").Bird;
 const Pipe = @import("pipe.zig").Pipe;
@@ -7,7 +9,7 @@ const generatePipe = @import("pipe.zig").generatePipe;
 
 pub const Game = struct {
     bird: *Bird,
-    pipe: *Pipe,
+    pipes: ArrayList(Pipe),
     allocator: Allocator,
     random: Random,
 
@@ -16,13 +18,17 @@ pub const Game = struct {
         errdefer allocator.destroy(bird);
         bird.* = Bird{};
 
-        const pipe = try allocator.create(Pipe);
-        errdefer allocator.destroy(pipe);
-        pipe.* = generatePipe(random, 648.0);
+        var pipes = ArrayList(Pipe).init(allocator);
+        errdefer pipes.deinit();
+
+        try pipes.append(generatePipe(random, 800.0));
+        try pipes.append(generatePipe(random, 1200.0));
+        try pipes.append(generatePipe(random, 1600.0));
+        try pipes.append(generatePipe(random, 2000.0));
 
         return Game{
             .bird = bird,
-            .pipe = pipe,
+            .pipes = pipes,
             .allocator = allocator,
             .random = random,
         };
@@ -30,26 +36,46 @@ pub const Game = struct {
 
     pub fn deinit(self: Game) void {
         self.allocator.destroy(self.bird);
-        self.allocator.destroy(self.pipe);
+        self.pipes.deinit();
     }
 
     pub fn update(self: *Game) !void {
         self.bird.update();
-        try self.updatePipes();
+
+        var count: usize = 0;
+        var i: usize = 0;
+        while (i < self.pipes.items.len) {
+            var pipe = &self.pipes.items[i];
+            pipe.update();
+
+            if (pipe.x_position < -100.0) {
+                _ = self.pipes.orderedRemove(i);
+                count += 1;
+            } else {
+                i += 1;
+            }
+        }
+
+        var j: usize = 0;
+        while (j < count) : (j += 1) {
+            try self.addNewPipe();
+        }
     }
 
-    fn updatePipes(self: *Game) !void {
-        self.pipe.update();
-        if (self.pipe.x_position < -100.0) {
-            const new_pipe = try self.allocator.create(Pipe);
-            new_pipe.* = generatePipe(self.random, 648.0);
-            self.allocator.destroy(self.pipe);
-            self.pipe = new_pipe;
+    pub fn addNewPipe(self: *Game) !void {
+        var new_position: f32 = 1600.0;
+        if (self.pipes.getLastOrNull()) |last_pipe| {
+            new_position = last_pipe.x_position + 400.0;
         }
+
+        try self.pipes.append(generatePipe(self.random, new_position));
     }
 
     pub fn draw(self: Game) void {
         self.bird.draw();
-        self.pipe.draw();
+
+        for (self.pipes.items) |*pipe| {
+            pipe.draw();
+        }
     }
 };
