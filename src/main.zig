@@ -1,16 +1,23 @@
+const std = @import("std");
 const c = @import("c.zig").c;
 const Bird = @import("bird.zig").Bird;
+const Game = @import("game.zig").Game;
 
 pub fn main() !void {
-    var b = Bird{ .position = .{ .x = 324, .y = 324 }, .size = 30 };
+    const allocator = std.heap.page_allocator;
+
+    var game = try Game.init(allocator);
+    defer game.deinit();
+
     c.InitWindow(1152, 648, "My Window");
     c.SetTargetFPS(144);
     defer c.CloseWindow();
 
     while (!c.WindowShouldClose()) {
+        game.update();
         c.BeginDrawing();
         c.ClearBackground(c.RAYWHITE);
-        b.draw();
+        game.draw();
         c.EndDrawing();
     }
 }
