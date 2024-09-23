@@ -12,6 +12,7 @@ pub const Game = struct {
     pipes: ArrayList(Pipe),
     allocator: Allocator,
     random: Random,
+    score: i32,
 
     pub fn init(allocator: Allocator, random: Random) !Game {
         const bird = try allocator.create(Bird);
@@ -31,6 +32,7 @@ pub const Game = struct {
             .pipes = pipes,
             .allocator = allocator,
             .random = random,
+            .score = 0,
         };
     }
 
@@ -46,7 +48,13 @@ pub const Game = struct {
         var i: usize = 0;
         while (i < self.pipes.items.len) {
             var pipe = &self.pipes.items[i];
+            const is_in_front_before = pipe.x_position > self.bird.position.x;
             pipe.update();
+
+            const is_in_front_after = pipe.x_position > self.bird.position.x;
+            if (is_in_front_before and !is_in_front_after) {
+                self.score += 1;
+            }
 
             if (pipe.x_position < -100.0) {
                 _ = self.pipes.orderedRemove(i);
@@ -83,11 +91,16 @@ pub const Game = struct {
         return false;
     }
 
-    pub fn draw(self: Game) void {
+    pub fn draw(self: Game) !void {
         self.bird.draw();
 
         for (self.pipes.items) |*pipe| {
             pipe.draw();
         }
+
+        var buf: [12]u8 = undefined;
+        const str = try std.fmt.bufPrint(&buf, "{}", .{self.score});
+        buf[str.len] = 0;
+        c.DrawText(@ptrCast(str), 20, 20, 48, c.RED);
     }
 };

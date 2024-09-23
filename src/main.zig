@@ -28,7 +28,7 @@ pub fn main() !void {
 
         c.BeginDrawing();
         c.ClearBackground(c.RAYWHITE);
-        game.draw();
+        try game.draw();
         c.EndDrawing();
     }
 }
