@@ -35,6 +35,6 @@ pub const Pipe = struct {
 };
 
 pub fn generatePipe(random: Random, x_position: f32) Pipe {
-    const randomValue = 74.0 + random.float(f32) * 300.0;
+    const randomValue = 150.0 + random.float(f32) * 348.0;
     return Pipe{ .x_position = x_position, .gap_center = randomValue };
 }
